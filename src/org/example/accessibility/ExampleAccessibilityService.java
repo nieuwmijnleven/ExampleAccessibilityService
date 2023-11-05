@@ -8,6 +8,10 @@ import android.view.accessibility.AccessibilityWindowInfo;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.util.Log;
 
+import android.widget.Toast;
+import android.os.Looper;                      
+import android.os.Handler;
+
 public class ExampleAccessibilityService extends AccessibilityService {
 
     static final String TAG = "ExampleAccessibilityService";
@@ -80,11 +84,23 @@ public class ExampleAccessibilityService extends AccessibilityService {
 
         String indentStr = new String(new char[indent * 3]).replace('\0', ' ');
         Log.v(TAG, String.format("%s NODE: %s", indentStr, node.toString()));
+        printToast(String.format("%s NODE: %s", indentStr, node.toString()));
         for (int i = 0; i < node.getChildCount(); i++) {
             dumpNode(node.getChild(i), indent + 1);
         }
         /* NOTE: Not sure if this is really required. Documentation is unclear. */
         node.recycle();
+    }
+    
+    private printToast(final String text) {
+      new Handler(Looper.getMainLooper()).post(new Runnable() {
+        
+        @Override
+        public void run() {
+          Toast.makeText(ExampleAccessibilityService.this.getApplicationContext(),
+          text, Toast.LENGTH_SHORT).show();
+         }
+      });
     }
 
     @Override
@@ -94,6 +110,11 @@ public class ExampleAccessibilityService extends AccessibilityService {
                   "onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s",
                   getEventTypeString(event.getEventType()), event.getClassName(), event.getPackageName(),
                   event.getEventTime(), getEventText(event)));
+                  
+        printToast(String.format(
+                  "onAccessibilityEvent: [type] %s [class] %s [package] %s [time] %s [text] %s",
+                  getEventTypeString(event.getEventType()), event.getClassName(), event.getPackageName(),
+                  event.getEventTime(), getEventText(event)));             
 
         /* Show all the windows available */
         List<AccessibilityWindowInfo> windows = getWindows();
